@@ -4,6 +4,7 @@ import master from './components/master';
 import homepage from './components/homepage';
 import config from './config';
 import _ from 'lodash';
+import MetaTags from 'react-meta-tags';
 
 class App extends Component {
   constructor(props){  
@@ -33,10 +34,13 @@ class App extends Component {
     });
   };
   render() {
-   
+    const pageName = window.location.pathname.split('/');
     return (
       <Router>
         <div> 
+        <MetaTags>
+            <title>{pageName[2]}</title>
+        </MetaTags>
           <Route exact path="/" component={homepage} />
           {this.state.data.map((data => (
           <Route path={data.path} component={master} key={data._key}/> 
