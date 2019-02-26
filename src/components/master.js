@@ -3,6 +3,7 @@ import config from '../config';
 import _ from 'lodash';
 import IN from './template/IN'
 import { withRouter } from 'react-router-dom';
+import {Helmet} from "react-helmet";
 
 class master extends React.Component {
     constructor(props){  
@@ -13,6 +14,7 @@ class master extends React.Component {
           gallery:'none',
           menubar:'none',
           footer:'none',
+          font:[],
           footerItem:[],
           footerSocial:[],
           carouselContent:[],
@@ -23,13 +25,16 @@ class master extends React.Component {
       }
 componentDidMount() {
   const pathArray = this.props.location.pathname.split('/');
-  const app = config.database().ref('project/'+pathArray[1]);
+  let checkProject = config.database().ref('production/'+pathArray[1]+'/');
+  checkProject.on('value', async (snapshot) => { 
+  const snapshotValue = snapshot.val();
+  const app = config.database().ref('project/'+snapshotValue);
   app.on('value', async (snapshot) => { 
-    const snapshotValue = snapshot.val(); 
-    const snapshotArr = _.keys(snapshotValue).reduce((prev, cur) => {
+    const snapshotValue2 = snapshot.val(); 
+    const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {
       prev.push({
         _key: cur,
-        ...snapshotValue[cur]
+        ...snapshotValue2[cur]
       });
       return prev;     
     }, []);  
@@ -37,7 +42,7 @@ componentDidMount() {
       while(row<snapshotArr.length){     
         if(pathArray[2] === snapshotArr[row].pathName){
 
-          const detailInPath = config.database().ref('project/'+pathArray[1]+'/'+snapshotArr[row]._key);
+          const detailInPath = config.database().ref('project/'+snapshotValue+'/'+snapshotArr[row]._key);
           detailInPath.on('value', async (snapshot) => { 
           const snapshotValue = snapshot.val(); 
           let data = _(snapshotValue).value();
@@ -149,43 +154,49 @@ componentDidMount() {
             })} 
           });
         
-          let carouselItems = config.database().ref('project/'+pathArray[1]+'/'+snapshotArr[row]._key+'/carouselContent');
+          let carouselItems = config.database().ref('project/'+snapshotValue+'/'+snapshotArr[row]._key+'/carouselContent');
           carouselItems.on('value', async (snapshot) => { 
             const snapshotValue2 = snapshot.val(); 
             const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev;}, []); 
             this.setState({carouselContent:snapshotArr}); });
         
-          let galleryContent = config.database().ref('project/'+pathArray[1]+'/'+snapshotArr[row]._key+'/galleryItem');
+          let galleryContent = config.database().ref('project/'+snapshotValue+'/'+snapshotArr[row]._key+'/galleryItem');
           galleryContent.on('value', async (snapshot) => { 
             const snapshotValue2 = snapshot.val(); 
             const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev;}, []); 
             this.setState({galleryContent:snapshotArr}); });
         
-          let menubarItem = config.database().ref('global/'+pathArray[1]+'/menubarItem/');
+          let menubarItem = config.database().ref('global/'+snapshotValue+'/menubarItem/');
           menubarItem.on('value', async (snapshot) => { 
             const snapshotValue2 = snapshot.val(); 
             const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
             this.setState({ menubarItem:snapshotArr});});
         
-          let footerItem = config.database().ref('global/'+pathArray[1]+'/footerItem/');
+          let footerItem = config.database().ref('global/'+snapshotValue+'/footerItem/');
           footerItem.on('value', async (snapshot) => { 
             const snapshotValue2 = snapshot.val(); 
             const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
             this.setState({ footerItem:snapshotArr});});
         
-          let footerSocial = config.database().ref('global/'+pathArray[1]+'/footerSocial/');
+          let footerSocial = config.database().ref('global/'+snapshotValue+'/footerSocial/');
           footerSocial.on('value', async (snapshot) => { 
             const snapshotValue2 = snapshot.val(); 
             const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
             this.setState({ footerSocial:snapshotArr});});
-          
-          let global = config.database().ref('global/'+pathArray[1]+'/');
+        
+          let font = config.database().ref('global/'+snapshotValue+'/font/');
+          font.on('value', async (snapshot) => { 
+            const snapshotValue2 = snapshot.val(); 
+            const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
+            this.setState({ font:snapshotArr});});
+
+          let global = config.database().ref('global/'+snapshotValue+'/');
           global.on('value', async (snapshot) => { 
             const snapshotValue = snapshot.val(); 
             let data = _(snapshotValue).value();
             if(data !== null){this.setState({menubarLogo:data.menubarLogo.image ,menubarbackgroundColor:data.menubarSetting.menubarbackgroundColor,})}});     
             
-          let footerContent = config.database().ref('global/'+pathArray[1]+'/footerContent');
+          let footerContent = config.database().ref('global/'+snapshotValue+'/footerContent');
             footerContent.on('value', async (snapshot) => { 
             const snapshotValue = snapshot.val(); 
             let data = _(snapshotValue).value();
@@ -215,12 +226,19 @@ componentDidMount() {
           }
         row++;
       } 
+    })
   });
 }
   render() {
 
     return (
-        <div>   
+        <div>  
+      <Helmet>
+      {this.state.font.map((font => (
+        font.font ==='none'?null:
+      <link rel="stylesheet" key={font._key} href={"https://fonts.googleapis.com/css?family="+font.font}/>
+      )))}
+      </Helmet>  
   <IN
   //Copy มาจาก Tab ใน CMS ได้เลย
   Hero={this.state.hero} 

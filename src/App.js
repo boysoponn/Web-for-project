@@ -4,7 +4,7 @@ import master from './components/master';
 import homepage from './components/homepage';
 import config from './config';
 import _ from 'lodash';
-import MetaTags from 'react-meta-tags';
+import {Helmet} from "react-helmet";
 
 class App extends Component {
   constructor(props){  
@@ -18,32 +18,38 @@ class App extends Component {
   }
     getData(){
       const pathArray = window.location.pathname.split('/');
-      const app = config.database().ref('project/'+pathArray[1]);
-      app.on('value', async (snapshot) => { 
-        const snapshotValue = snapshot.val(); 
-        const snapshotArr = _.keys(snapshotValue).reduce((prev, cur) => {
+      let checkProject = config.database().ref('production/'+pathArray[1]+'/');
+      checkProject.on('value', async (snapshot) => { 
+        const snapshotValue = snapshot.val();
+        const app = config.database().ref('project/'+snapshotValue);
+        app.on('value', async (snapshot) => { 
+        const snapshotValue2 = snapshot.val();
+        const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {
           prev.push({
             _key: cur,
-            ...snapshotValue[cur]
+            ...snapshotValue2[cur],
+            path:pathArray[1]
           });
           return prev;     
         }, []);  
         this.setState({
           data:snapshotArr,
         });
-    });
+        });
+        });
+        
   };
   render() {
     const pageName = window.location.pathname.split('/');
     return (
       <Router>
-        <div> 
-        <MetaTags>
-            <title>{pageName[2]}</title>
-        </MetaTags>
+        <div>
+        <Helmet>
+        <title>{pageName[2]}</title>
+      </Helmet> 
           <Route exact path="/" component={homepage} />
           {this.state.data.map((data => (
-          <Route path={data.path} component={master} key={data._key}/> 
+          <Route path={'/'+data.path+'/'+data.pathName} component={master} key={data._key}/> 
         )))}
                          
         </div>
