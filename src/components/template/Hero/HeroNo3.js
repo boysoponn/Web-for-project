@@ -2,7 +2,7 @@ import React from 'react';
 import ScrollAnimation from 'react-animate-on-scroll';
 import styled from 'styled-components'
 
-class HeroNo3 extends React.Component {
+class HeroNo1 extends React.Component {
     constructor(props){  
       super(props);
           this.state = {
@@ -21,8 +21,7 @@ class HeroNo3 extends React.Component {
         fontStyle:this.props.heroTitleFontStyle,
         display:this.props.heroTitleStatus,
         textAlign: this.props.heroTitlePosition,
-        paddingBottom:'2%'
-        
+        paddingBottom:'2%'    
     };
     const description={
         opacity: 1,
@@ -106,18 +105,19 @@ class HeroNo3 extends React.Component {
             {checkButton}
             </Content>
         </BG> 
+
     );
   }
 }
 
-export default HeroNo3;
+export default HeroNo1;
 
 const Content = styled.div`
 height:100%;
 width:100%;
 position:absolute;
 z-index:5;
-padding: 15% 10% 10%;
+padding: 25vh 10% 10%;
 `;
 
 const BG = styled.div`
