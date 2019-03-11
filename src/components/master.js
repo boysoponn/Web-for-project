@@ -1,10 +1,9 @@
 import React from 'react';
-import config from '../config';
 import _ from 'lodash';
 import IN from './template/IN'
-import { withRouter } from 'react-router-dom';
 import {Helmet} from "react-helmet";
-
+import { Preloader, Placeholder } from 'react-preloading-screen';
+import styled from 'styled-components'
 class master extends React.Component {
     constructor(props){  
       super(props);
@@ -20,218 +19,158 @@ class master extends React.Component {
           carouselContent:[],
           menubarItem:[],
           galleryContent:[],
-          isLoaded: false
           };   
       }
 componentDidMount() {
-  const pathArray = this.props.location.pathname.split('/');
-  let checkProject = config.database().ref('production/'+pathArray[1]+'/');
-  checkProject.on('value', async (snapshot) => { 
-  const snapshotValue = snapshot.val();
-  const app = config.database().ref('project/'+snapshotValue);
-  app.on('value', async (snapshot) => { 
-    const snapshotValue2 = snapshot.val(); 
-    const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {
-      prev.push({
-        _key: cur,
-        ...snapshotValue2[cur]
-      });
-      return prev;     
-    }, []);  
-    let row=0; 
-      while(row<snapshotArr.length){     
-        if(pathArray[2] === snapshotArr[row].pathName){
+  let project = this.props.project;
+  let global = this.props.global;
+  if(project !== null){
+    this.setState({
+      //Copy มาจาก project ใน CMS ได้เลย
+      hero:project.hero,
+      carousel:project.carousel,
+      gallery:project.gallery,
+      menubar:project.menubar,
+      footer:project.footer,
+      heroYoutubeID:project.heroContent.youtubeID,
+      herobackgroundColor:project.heroContent.backgroundColor,
+      heroBackgroundImage:project.heroContent.image,
+      heroTitle:project.heroContent.title,
+      heroTitleAnimate:project.heroContent.titleAnimate,
+      heroTitleDuration:project.heroContent.titleDuration,
+      heroTitleFontFamily:project.heroContent.titleFontFamily,
+      heroTitleFontSize:project.heroContent.titleFontSize,
+      heroTitleFontWeight:project.heroContent.titleFontWeight,
+      heroTitleFontStyle:project.heroContent.titleFontStyle,
+      heroTitleStatus:project.heroContent.titleStatus,
+      heroTitleColor:project.heroContent.titleColor,
+      heroTitlePosition:project.heroContent.titlePosition,
 
-          const detailInPath = config.database().ref('project/'+snapshotValue+'/'+snapshotArr[row]._key);
-          detailInPath.on('value', async (snapshot) => { 
-          const snapshotValue = snapshot.val(); 
-          let data = _(snapshotValue).value();
-          if(data !== null){
-            this.setState({
-              //Copy มาจาก Data ใน CMS ได้เลย
-              hero:data.hero,
-              carousel:data.carousel,
-              gallery:data.gallery,
-              menubar:data.menubar,
-              footer:data.footer,
-              heroYoutubeID:data.heroContent.youtubeID,
-              herobackgroundColor:data.heroContent.backgroundColor,
-              heroBackgroundImage:data.heroContent.image,
-              heroTitle:data.heroContent.title,
-              heroTitleAnimate:data.heroContent.titleAnimate,
-              heroTitleDuration:data.heroContent.titleDuration,
-              heroTitleFontFamily:data.heroContent.titleFontFamily,
-              heroTitleFontSize:data.heroContent.titleFontSize,
-              heroTitleFontWeight:data.heroContent.titleFontWeight,
-              heroTitleFontStyle:data.heroContent.titleFontStyle,
-              heroTitleStatus:data.heroContent.titleStatus,
-              heroTitleColor:data.heroContent.titleColor,
-              heroTitlePosition:data.heroContent.titlePosition,
-    
-              heroDescription:data.heroContent.description,
-              heroDescriptionAnimate:data.heroContent.descriptionAnimate,
-              heroDescriptionDuration:data.heroContent.descriptionDuration,
-              heroDescriptionFontFamily:data.heroContent.descriptionFontFamily,
-              heroDescriptionFontSize:data.heroContent.descriptionFontSize,
-              heroDescriptionFontWeight:data.heroContent.descriptionFontWeight,
-              heroDescriptionFontStyle:data.heroContent.descriptionFontStyle,
-              heroDescriptionStatus:data.heroContent.descriptionStatus,
-              heroDescriptionColor:data.heroContent.descriptionColor,
-              heroDescriptionPosition:data.heroContent.descriptionPosition,
-    
-              heroButton:data.heroContent.button,
-              heroButtonPosition:data.heroContent.buttonPosition,
-              heroButtonSelected:data.heroContent.buttonSelected,
-              heroButtonAnimate:data.heroContent.buttonAnimate,
-              heroButtonDuration:data.heroContent.buttonDuration,
-              heroButtonFontFamily:data.heroContent.buttonFontFamily,
-              heroButtonFontSize:data.heroContent.buttonFontSize,
-              heroButtonFontWeight:data.heroContent.buttonFontWeight,
-              heroButtonFontStyle:data.heroContent.buttonFontStyle,
-              heroButtonStatus:data.heroContent.buttonStatus,
-              heroButtonColor:data.heroContent.buttonColor,
-              heroButtonSwapColor:data.heroContent.buttonSwapColor,
-              heroButtonSwap:data.heroContent.buttonSwap,
-              heroButtonLink:data.heroContent.buttonLink,
-              heroButtonLinkTarget:data.heroContent.buttonLinkTarget,
-              heroButtonRadius:data.heroContent.buttonRadius,
-              heroButtonBGColor:data.heroContent.buttonBGColor,
-              heroButtonHBGColor:data.heroContent.buttonHBGColor,
-              heroButtonBDColor:data.heroContent.buttonBDColor,
-              heroButtonHBDColor:data.heroContent.buttonHBDColor,
-              heroButtonHoverColor:data.heroContent.buttonHoverColor,
-    
-              carouselBackgroundColor:data.carouselMain.backgroundColor,
-              carouselSpeed:data.carouselSetting.speed,
-              carouselPauseOnHover:data.carouselSetting.pauseOnHover,
-              carouselDots:data.carouselSetting.dots,
-              carouselAutoplay:data.carouselSetting.autoplay,
-              carouselVertical:data.carouselSetting.vertical,
-              carouselTitle:data.carouselMain.title,
-              carouselTitlePosition:data.carouselMain.titlePosition,
-    
-              carouselDescriptionPosition:data.carouselMain.descriptionPosition,
-              carouselDescription:data.carouselMain.description,
-              carouselTitleAnimate:data.carouselMain.titleAnimate,
-              carouselTitleDuration:data.carouselMain.titleDuration,
-              carouselTitleFontFamily:data.carouselMain.titleFontFamily,
-              carouselTitleFontSize:data.carouselMain.titleFontSize,
-              carouselTitleFontWeight:data.carouselMain.titleFontWeight,
-              carouselTitleFontStyle:data.carouselMain.titleFontStyle,
-              carouselTitleStatus:data.carouselMain.titleStatus,
-              carouselTitleColor:data.carouselMain.titleColor,
-              carouselDescriptionAnimate:data.carouselMain.descriptionAnimate,
-              carouselDescriptionDuration:data.carouselMain.descriptionDuration,
-              carouselDescriptionFontFamily:data.carouselMain.descriptionFontFamily,
-              carouselDescriptionFontSize:data.carouselMain.descriptionFontSize,
-              carouselDescriptionFontWeight:data.carouselMain.descriptionFontWeight,
-              carouselDescriptionFontStyle:data.carouselMain.descriptionFontStyle,
-              carouselDescriptionStatus:data.carouselMain.descriptionStatus,
-              carouselDescriptionColor:data.carouselMain.descriptionColor,
-    
-              galleryBackgroundColor:data.galleryContent.backgroundColor,
-              galleryTitle:data.galleryContent.title,
-              galleryTitlePosition:data.galleryContent.titlePosition,
-              galleryTitleAnimate:data.galleryContent.titleAnimate,
-              galleryTitleDuration:data.galleryContent.titleDuration,
-              galleryTitleFontFamily:data.galleryContent.titleFontFamily,
-              galleryTitleFontSize:data.galleryContent.titleFontSize,
-              galleryTitleFontWeight:data.galleryContent.titleFontWeight,
-              galleryTitleFontStyle:data.galleryContent.titleFontStyle,
-              galleryTitleStatus:data.galleryContent.titleStatus,
-              galleryTitleColor:data.galleryContent.titleColor,
-    
-              galleryDescription:data.galleryContent.description,
-              galleryDescriptionPosition:data.galleryContent.descriptionPosition,
-              galleryDescriptionAnimate:data.galleryContent.descriptionAnimate,
-              galleryDescriptionDuration:data.galleryContent.descriptionDuration,
-              galleryDescriptionFontFamily:data.galleryContent.descriptionFontFamily,
-              galleryDescriptionFontSize:data.galleryContent.descriptionFontSize,
-              galleryDescriptionFontWeight:data.galleryContent.descriptionFontWeight,
-              galleryDescriptionFontStyle:data.galleryContent.descriptionFontStyle,
-              galleryDescriptionStatus:data.galleryContent.descriptionStatus,
-              galleryDescriptionColor:data.galleryContent.descriptionColor,
-            })} 
-          });
-        
-          let carouselItems = config.database().ref('project/'+snapshotValue+'/'+snapshotArr[row]._key+'/carouselContent');
-          carouselItems.on('value', async (snapshot) => { 
-            const snapshotValue2 = snapshot.val(); 
-            const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev;}, []); 
-            this.setState({carouselContent:snapshotArr}); });
-        
-          let galleryContent = config.database().ref('project/'+snapshotValue+'/'+snapshotArr[row]._key+'/galleryItem');
-          galleryContent.on('value', async (snapshot) => { 
-            const snapshotValue2 = snapshot.val(); 
-            const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev;}, []); 
-            this.setState({galleryContent:snapshotArr}); });
-        
-          let menubarItem = config.database().ref('global/'+snapshotValue+'/menubarItem/');
-          menubarItem.on('value', async (snapshot) => { 
-            const snapshotValue2 = snapshot.val(); 
-            const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
-            this.setState({ menubarItem:snapshotArr});});
-        
-          let footerItem = config.database().ref('global/'+snapshotValue+'/footerItem/');
-          footerItem.on('value', async (snapshot) => { 
-            const snapshotValue2 = snapshot.val(); 
-            const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
-            this.setState({ footerItem:snapshotArr});});
-        
-          let footerSocial = config.database().ref('global/'+snapshotValue+'/footerSocial/');
-          footerSocial.on('value', async (snapshot) => { 
-            const snapshotValue2 = snapshot.val(); 
-            const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
-            this.setState({ footerSocial:snapshotArr});});
-        
-          let font = config.database().ref('global/'+snapshotValue+'/font/');
-          font.on('value', async (snapshot) => { 
-            const snapshotValue2 = snapshot.val(); 
-            const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {prev.push({_key: cur,...snapshotValue2[cur]});return prev; }, []); 
-            this.setState({ font:snapshotArr});});
+      heroDescription:project.heroContent.description,
+      heroDescriptionAnimate:project.heroContent.descriptionAnimate,
+      heroDescriptionDuration:project.heroContent.descriptionDuration,
+      heroDescriptionFontFamily:project.heroContent.descriptionFontFamily,
+      heroDescriptionFontSize:project.heroContent.descriptionFontSize,
+      heroDescriptionFontWeight:project.heroContent.descriptionFontWeight,
+      heroDescriptionFontStyle:project.heroContent.descriptionFontStyle,
+      heroDescriptionStatus:project.heroContent.descriptionStatus,
+      heroDescriptionColor:project.heroContent.descriptionColor,
+      heroDescriptionPosition:project.heroContent.descriptionPosition,
 
-          let global = config.database().ref('global/'+snapshotValue+'/');
-          global.on('value', async (snapshot) => { 
-            const snapshotValue = snapshot.val(); 
-            let data = _(snapshotValue).value();
-            if(data !== null){this.setState({menubarLogo:data.menubarLogo.image ,menubarbackgroundColor:data.menubarSetting.menubarbackgroundColor,})}});     
-            
-          let footerContent = config.database().ref('global/'+snapshotValue+'/footerContent');
-            footerContent.on('value', async (snapshot) => { 
-            const snapshotValue = snapshot.val(); 
-            let data = _(snapshotValue).value();
-            if(data !== null){this.setState({
-              footerTitle:data.title,
-              footerDescription:data.description,
-              footerPosition:data.position,
-              footerbackgroundColor:data.backgroundColor,
-              footerTitleAnimate:data.titleAnimate,
-              footerTitleDuration:data.titleDuration,
-              footerTitleFontFamily:data.titleFontFamily,
-              footerTitleFontSize:data.titleFontSize,
-              footerTitleFontWeight:data.titleFontWeight,
-              footerTitleFontStyle:data.titleFontStyle,
-              footerTitleStatus:data.titleStatus,
-              footerTitleColor:data.titleColor,
-          
-              footerDescriptionAnimate:data.descriptionAnimate,
-              footerDescriptionDuration:data.descriptionDuration,
-              footerDescriptionFontFamily:data.descriptionFontFamily,
-              footerDescriptionFontSize:data.descriptionFontSize,
-              footerDescriptionFontWeight:data.descriptionFontWeight,
-              footerDescriptionFontStyle:data.descriptionFontStyle,
-              footerDescriptionStatus:data.descriptionStatus,
-              footerDescriptionColor:data.descriptionColor,
-            })}});
-          }
-        row++;
-      } 
-    })
-  });
+      heroButton:project.heroContent.button,
+      heroButtonPosition:project.heroContent.buttonPosition,
+      heroButtonSelected:project.heroContent.buttonSelected,
+      heroButtonAnimate:project.heroContent.buttonAnimate,
+      heroButtonDuration:project.heroContent.buttonDuration,
+      heroButtonFontFamily:project.heroContent.buttonFontFamily,
+      heroButtonFontSize:project.heroContent.buttonFontSize,
+      heroButtonFontWeight:project.heroContent.buttonFontWeight,
+      heroButtonFontStyle:project.heroContent.buttonFontStyle,
+      heroButtonStatus:project.heroContent.buttonStatus,
+      heroButtonColor:project.heroContent.buttonColor,
+      heroButtonSwapColor:project.heroContent.buttonSwapColor,
+      heroButtonSwap:project.heroContent.buttonSwap,
+      heroButtonLink:project.heroContent.buttonLink,
+      heroButtonLinkTarget:project.heroContent.buttonLinkTarget,
+      heroButtonRadius:project.heroContent.buttonRadius,
+      heroButtonBGColor:project.heroContent.buttonBGColor,
+      heroButtonHBGColor:project.heroContent.buttonHBGColor,
+      heroButtonBDColor:project.heroContent.buttonBDColor,
+      heroButtonHBDColor:project.heroContent.buttonHBDColor,
+      heroButtonHoverColor:project.heroContent.buttonHoverColor,
+
+      carouselBackgroundColor:project.carouselMain.backgroundColor,
+      carouselSpeed:project.carouselSetting.speed,
+      carouselPauseOnHover:project.carouselSetting.pauseOnHover,
+      carouselDots:project.carouselSetting.dots,
+      carouselAutoplay:project.carouselSetting.autoplay,
+      carouselVertical:project.carouselSetting.vertical,
+      carouselTitle:project.carouselMain.title,
+      carouselTitlePosition:project.carouselMain.titlePosition,
+
+      carouselDescriptionPosition:project.carouselMain.descriptionPosition,
+      carouselDescription:project.carouselMain.description,
+      carouselTitleAnimate:project.carouselMain.titleAnimate,
+      carouselTitleDuration:project.carouselMain.titleDuration,
+      carouselTitleFontFamily:project.carouselMain.titleFontFamily,
+      carouselTitleFontSize:project.carouselMain.titleFontSize,
+      carouselTitleFontWeight:project.carouselMain.titleFontWeight,
+      carouselTitleFontStyle:project.carouselMain.titleFontStyle,
+      carouselTitleStatus:project.carouselMain.titleStatus,
+      carouselTitleColor:project.carouselMain.titleColor,
+      carouselDescriptionAnimate:project.carouselMain.descriptionAnimate,
+      carouselDescriptionDuration:project.carouselMain.descriptionDuration,
+      carouselDescriptionFontFamily:project.carouselMain.descriptionFontFamily,
+      carouselDescriptionFontSize:project.carouselMain.descriptionFontSize,
+      carouselDescriptionFontWeight:project.carouselMain.descriptionFontWeight,
+      carouselDescriptionFontStyle:project.carouselMain.descriptionFontStyle,
+      carouselDescriptionStatus:project.carouselMain.descriptionStatus,
+      carouselDescriptionColor:project.carouselMain.descriptionColor,
+
+      galleryBackgroundColor:project.galleryContent.backgroundColor,
+      galleryTitle:project.galleryContent.title,
+      galleryTitlePosition:project.galleryContent.titlePosition,
+      galleryTitleAnimate:project.galleryContent.titleAnimate,
+      galleryTitleDuration:project.galleryContent.titleDuration,
+      galleryTitleFontFamily:project.galleryContent.titleFontFamily,
+      galleryTitleFontSize:project.galleryContent.titleFontSize,
+      galleryTitleFontWeight:project.galleryContent.titleFontWeight,
+      galleryTitleFontStyle:project.galleryContent.titleFontStyle,
+      galleryTitleStatus:project.galleryContent.titleStatus,
+      galleryTitleColor:project.galleryContent.titleColor,
+
+      galleryDescription:project.galleryContent.description,
+      galleryDescriptionPosition:project.galleryContent.descriptionPosition,
+      galleryDescriptionAnimate:project.galleryContent.descriptionAnimate,
+      galleryDescriptionDuration:project.galleryContent.descriptionDuration,
+      galleryDescriptionFontFamily:project.galleryContent.descriptionFontFamily,
+      galleryDescriptionFontSize:project.galleryContent.descriptionFontSize,
+      galleryDescriptionFontWeight:project.galleryContent.descriptionFontWeight,
+      galleryDescriptionFontStyle:project.galleryContent.descriptionFontStyle,
+      galleryDescriptionStatus:project.galleryContent.descriptionStatus,
+      galleryDescriptionColor:project.galleryContent.descriptionColor,
+    })} 
+  if(global !== null){
+    this.setState({
+      menubarLogo:global.menubarLogo.image ,
+      menubarbackgroundColor:global.menubarSetting.menubarbackgroundColor,
+      footerTitle:global.footerContent.title,
+      footerDescription:global.footerContent.description,
+      footerPosition:global.footerContent.position,
+      footerbackgroundColor:global.footerContent.backgroundColor,
+      footerTitleAnimate:global.footerContent.titleAnimate,
+      footerTitleDuration:global.footerContent.titleDuration,
+      footerTitleFontFamily:global.footerContent.titleFontFamily,
+      footerTitleFontSize:global.footerContent.titleFontSize,
+      footerTitleFontWeight:global.footerContent.titleFontWeight,
+      footerTitleFontStyle:global.footerContent.titleFontStyle,
+      footerTitleStatus:global.footerContent.titleStatus,
+      footerTitleColor:global.footerContent.titleColor,
+      footerDescriptionAnimate:global.footerContent.descriptionAnimate,
+      footerDescriptionDuration:global.footerContent.descriptionDuration,
+      footerDescriptionFontFamily:global.footerContent.descriptionFontFamily,
+      footerDescriptionFontSize:global.footerContent.descriptionFontSize,
+      footerDescriptionFontWeight:global.footerContent.descriptionFontWeight,
+      footerDescriptionFontStyle:global.footerContent.descriptionFontStyle,
+      footerDescriptionStatus:global.footerContent.descriptionStatus,
+      footerDescriptionColor:global.footerContent.descriptionColor,
+    })} 
+  const carouselContent = _.keys(project.carouselContent).reduce((prev, cur) => {prev.push({_key: cur,...project.carouselContent[cur],});return prev;}, []); 
+  this.setState({carouselContent:carouselContent});    
+  const galleryContent = _.keys(project.galleryItem).reduce((prev, cur) => {prev.push({_key: cur,...project.galleryItem[cur],});return prev;}, []); 
+  this.setState({galleryContent:galleryContent}); 
+  const font = _.keys(global.font).reduce((prev, cur) => {prev.push({_key: cur,...global.font[cur],});return prev;}, []); 
+  this.setState({font:font});    
+  const footerItem = _.keys(global.footerItem).reduce((prev, cur) => {prev.push({_key: cur,...global.footerItem[cur],});return prev;}, []); 
+  this.setState({footerItem:footerItem});   
+  const footerSocial = _.keys(global.footerSocial).reduce((prev, cur) => {prev.push({_key: cur,...global.footerSocial[cur],});return prev;}, []); 
+  this.setState({footerSocial:footerSocial});    
+  const menubarItem = _.keys(global.menubarItem).reduce((prev, cur) => {prev.push({_key: cur,...global.menubarItem[cur],});return prev;}, []); 
+  this.setState({menubarItem:menubarItem});  
 }
   render() {
-
     return (
+      <Preloader>
         <div>  
       <Helmet>
       {this.state.font.map((font => (
@@ -239,18 +178,35 @@ componentDidMount() {
       <link rel="stylesheet" key={font._key} href={"https://fonts.googleapis.com/css?family="+font.font}/>
       )))}
       </Helmet>  
-  <IN
-  //Copy มาจาก Tab ใน CMS ได้เลย
-  Hero={this.state.hero} 
-  Carousel={this.state.carousel} 
-  Gallery={this.state.gallery} 
-  Menubar={this.state.menubar} 
-  Footer={this.state.footer} 
-  {...this.state}
-  />
+        <IN
+        //Copy มาจาก Tab ใน CMS ได้เลย
+        Hero={this.state.hero} 
+        Carousel={this.state.carousel} 
+        Gallery={this.state.gallery} 
+        Menubar={this.state.menubar} 
+        Footer={this.state.footer} 
+        {...this.state}
+        />
         </div>
+      <Placeholder>
+      <Preload><Span>Loading...</Span></Preload>
+      </Placeholder>
+  </Preloader>
     );
   }
 }
 
-export default withRouter(master);
+export default master;
+
+const Preload = styled.div`
+background-color:#f8f8f8;
+height:100vh;
+width:100vw;
+`;
+
+const Span = styled.span`
+display:flex;
+justify-content: center;
+align-items: center;
+height:100%;
+`;

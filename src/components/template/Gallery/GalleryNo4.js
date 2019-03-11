@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link} from 'react-router-dom';
 import styled from 'styled-components'
 import '../tamplateCSS/hoverImage.css'
 import ScrollAnimation from 'react-animate-on-scroll';
@@ -47,7 +48,7 @@ class GalleryNo2 extends React.Component {
 			<Grid>
 				{this.props.galleryContent.map((post) => 
 			
-					<Figure width='23%' className={'effect-'+post.galleryHover}  key={post._key}>	
+					<Figure width='23%' className={'effect-'+post.galleryHover} key={post._key}>	
 						<Img Src={"url("+post.image+")"}/>
 						<Figcaption>
 							<div>
@@ -68,7 +69,12 @@ class GalleryNo2 extends React.Component {
 								fontStyle={post.descriptionFontStyle}
 								>{post.description}</P>
 							</div>
-							{post.link === '#'? null:<A href={post.link} target={post.linkTarget}></A>}
+							{post.link  && post.link !=="#" ? 
+							post.link.search("http") === -1 && post.linkTarget !== '_blank'?
+							<Link to={post.link}><A></A></Link>
+							:<A href={post.link} target={post.linkTarget}></A>
+							:null
+							}
 						</Figcaption>			
 					</Figure>
 					

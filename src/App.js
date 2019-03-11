@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route} from 'react-router-dom';
-import master from './components/master';
+import Master from './components/master';
 import homepage from './components/homepage';
 import config from './config';
 import _ from 'lodash';
@@ -10,18 +10,20 @@ class App extends Component {
   constructor(props){  
     super(props);
         this.state = {
-        data:[],
+        project:[],
+        global:[]
         };   
     }
   componentDidMount() {
     this.getData();
   }
     getData(){
+      if(window.location.pathname !== "/"){
       const pathArray = window.location.pathname.split('/');
       let checkProject = config.database().ref('production/'+pathArray[1]+'/');
       checkProject.on('value', async (snapshot) => { 
-        const snapshotValue = snapshot.val();
-        const app = config.database().ref('project/'+snapshotValue);
+        const user = snapshot.val();
+        const app = config.database().ref('project/'+user);
         app.on('value', async (snapshot) => { 
         const snapshotValue2 = snapshot.val();
         const snapshotArr = _.keys(snapshotValue2).reduce((prev, cur) => {
@@ -31,13 +33,18 @@ class App extends Component {
             path:pathArray[1]
           });
           return prev;     
-        }, []);  
-        this.setState({
-          data:snapshotArr,
+        }, []); 
+        const global = config.database().ref('global/'+user);
+        global.on('value', async (snapshot) => { 
+        const snapshotglobal = snapshot.val();
+          this.setState({
+            project:snapshotArr,
+            global:snapshotglobal
+          });
         });
         });
-        });
-        
+      }); 
+    }      
   };
   render() {
     const pageName = window.location.pathname.split('/');
@@ -48,10 +55,9 @@ class App extends Component {
         <title>{pageName[2]}</title>
       </Helmet> 
           <Route exact path="/" component={homepage} />
-          {this.state.data.map((data => (
-          <Route path={'/'+data.path+'/'+data.pathName} component={master} key={data._key}/> 
-        )))}
-                         
+          {this.state.project.map((project => (
+          <Route path={'/'+project.path+'/'+project.pathName} render={() => <Master project={project} global={this.state.global}/>} key={project._key}/> 
+        )))}                
         </div>
       </Router>
     );
