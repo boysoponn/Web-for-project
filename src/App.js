@@ -47,13 +47,9 @@ class App extends Component {
     }      
   };
   render() {
-    const pageName = window.location.pathname.split('/');
     return (
       <Router>
         <div>
-        <Helmet>
-        <title>{pageName[2]}</title>
-      </Helmet> 
           <Route exact path="/" component={homepage} />
           {this.state.project.map((project => (
           <Route path={'/'+project.path+'/'+project.pathName} render={() => <Master project={project} global={this.state.global}/>} key={project._key}/> 
