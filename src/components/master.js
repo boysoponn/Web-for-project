@@ -2,8 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import IN from './template/IN'
 import {Helmet} from "react-helmet";
-import { Preloader, Placeholder } from 'react-preloading-screen';
-import styled from 'styled-components'
+import styled from 'styled-components';
 class master extends React.Component {
     constructor(props){  
       super(props);
@@ -320,7 +319,6 @@ componentWillReceiveProps(nextProps) {
 
   render() {
     return (
-      <Preloader>
         <div>  
       <Helmet>
       <title>{this.state.pathName}</title>
@@ -339,10 +337,6 @@ componentWillReceiveProps(nextProps) {
         {...this.state}
         />
         </div>
-      <Placeholder>
-      <Preload><Span>Loading...</Span></Preload>
-      </Placeholder>
-  </Preloader>
     );
   }
 }
